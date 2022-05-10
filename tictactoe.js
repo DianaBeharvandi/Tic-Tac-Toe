@@ -3,10 +3,23 @@ const statusDiv = document.querySelector('.status');
 const resetDiv = document.querySelector('.reset');
 const cellDivs = document.querySelectorAll('.game-cell');
 
+
 // game variables
 let gameIsLive = true;
 let xIsNext = true;
 let moves = 0;
+let winner;
+let cells = Array.from(cellDivs);
+let solutions = [
+  [0, 1, 2],
+  [3, 4, 5],
+  [6, 7, 8],
+  [0, 3, 6],
+  [1, 4, 7],
+  [2, 5, 8],
+  [0, 4, 8],
+  [2, 4, 6]
+];
 
 
 // game constants
@@ -26,66 +39,26 @@ const handleWin = (letter) => {
 }
 
 const checkGameStatus = () => {
-  const topLeft = cellDivs[0].classList[1];
-  const topMiddle = cellDivs[1].classList[1];
-  const topRight = cellDivs[2].classList[1];
-  const middleLeft = cellDivs[3].classList[1];
-  const middleMiddle = cellDivs[4].classList[1];
-  const middleRight = cellDivs[5].classList[1];
-  const bottomleft = cellDivs[6].classList[1];
-  const bottomMiddle = cellDivs[7].classList[1];
-  const bottomRight = cellDivs[8].classList[1];
-  // check  winner
-  if (topLeft && topLeft === topMiddle && topLeft === topRight) {
-    handleWin(topLeft);
-    cellDivs[0].classList.add('won');
-    cellDivs[1].classList.add('won');
-    cellDivs[2].classList.add('won');
-  } else if ( middleLeft && middleLeft === middleMiddle && middleLeft === middleRight) {
-    handleWin(middleLeft);
-    cellDivs[3].classList.add('won');
-    cellDivs[4].classList.add('won');
-    cellDivs[5].classList.add('won');
-  } else if ( bottomleft && bottomleft === bottomMiddle && bottomleft === bottomRight) {
-    handleWin(bottomleft);
-    cellDivs[6].classList.add('won');
-    cellDivs[7].classList.add('won');
-    cellDivs[8].classList.add('won');
-  } else if ( topLeft && topLeft === middleLeft && topLeft === bottomleft) {
-    handleWin(topLeft);
-    cellDivs[0].classList.add('won');
-    cellDivs[3].classList.add('won');
-    cellDivs[6].classList.add('won');
-  } else if ( topMiddle && topMiddle === middleMiddle && topMiddle === bottomMiddle) {
-    handleWin(topMiddle);
-    cellDivs[1].classList.add('won');
-    cellDivs[4].classList.add('won');
-    cellDivs[7].classList.add('won');
-  } else if (topRight && topRight === middleRight && topRight === bottomRight) {
-    handleWin(topRight);
-    cellDivs[2].classList.add('won');
-    cellDivs[5].classList.add('won');
-    cellDivs[8].classList.add('won');
-  } else if ( topLeft && topLeft === middleMiddle && topLeft === bottomRight) {
-    handleWin(topLeft);
-    cellDivs[0].classList.add('won');
-    cellDivs[4].classList.add('won');
-    cellDivs[8].classList.add('won');
-  } else if ( topRight && topRight === middleMiddle && topRight === bottomleft) {
-    handleWin(topRight);
-    cellDivs[2].classList.add('won');
-    cellDivs[4].classList.add('won');
-    cellDivs[6].classList.add('won');
-  } else if ( moves === 9) {
-    //topLeft && topMiddle && topRight && middleLeft && middleMiddle && middleRight && bottomleft && bottomMiddle && bottomRight) {
-      gameIsLive = false;
-      statusDiv.innerHTML = 'Game is tied!';
-  } else {
-    xIsNext = !xIsNext;
-    if (xIsNext)  {
-      statusDiv.innerHTML= `${xSymbol} is next`;
+  solutions.forEach ( solution => {
+    if (cells[solution[0]].classList[1] === cells[solution[1]].classList[1] && cells[solution[1]].classList[1]===cells[solution[2]].classList[1] && cells[solution[0]].classList[1] ) {
+      winner = cells[solution[0]].classList[1];
+      handleWin(winner);
+      cells[solution[0]].classList.add("won");
+      cells[solution[1]].classList.add("won");
+      cells[solution[2]].classList.add("won");
+    }
+  });
+  if (!winner)  {
+    if ( moves === 9) {
+        gameIsLive = false;
+        statusDiv.innerHTML = 'Game is tied!';
     } else {
-      statusDiv.innerHTML= `<span>${oSymbol} is next </span>`;
+      xIsNext = !xIsNext;
+      if (xIsNext)  {
+        statusDiv.innerHTML= `${xSymbol} is next`;
+      } else {
+        statusDiv.innerHTML= `<span>${oSymbol} is next </span>`;
+      }
     }
   }
 }
@@ -95,12 +68,14 @@ const handleReset = () => {
   gameIsLive = true;
   xIsNext = true;
   moves = 0;
+  winner = undefined;
   statusDiv.innerHTML = `${xSymbol} is next`;
   for ( const cellDiv of cellDivs ) {
     cellDiv.classList.remove('x');
     cellDiv.classList.remove('o');
     cellDiv.classList.remove('won');
   }
+  cells = Array.from(cellDivs);
 }
 
 const handleCellClick = (e) => {
